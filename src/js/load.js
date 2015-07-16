@@ -1,6 +1,6 @@
 var Game = {
-  w: 800,
-  h: 600
+  w: 640,
+  h: 980 
 };
 
 // var w = 800;
@@ -12,11 +12,20 @@ Game.Boot = function(game) {
 
 Game.Boot.prototype = {
   preload: function() {
-    // console.log('blah'+Game.w);
-		this.game.stage.backgroundColor = '#FFF';
+		this.game.stage.backgroundColor = '#000';
 		this.game.load.image('loading', 'assets/images/loading.png');
 		this.game.load.image('title', 'assets/images/title.png');
 		this.game.load.image('instructions', 'assets/images/instructions.png');
+
+    //Automatically Scale to fit available screen
+    this.game.scale.scaleMode = Phaser.ScaleManager.SHOW_ALL;
+    this.game.scale.maxHeight = window.innerHeight;
+    this.game.scale.maxWidth = window.innerHeight*(Game.w/Game.h);
+
+    this.game.stage.scale.pageAlignHorizontally = true;
+    this.game.stage.scale.pageAlignVeritcally = true;
+    this.game.scale.setScreenSize(true);
+
   },
   create: function() {
    this.game.state.start('Load');
@@ -38,6 +47,8 @@ Game.Load.prototype = {
   	loadingText.anchor.setTo(0.5, 0.5);
   	var preloading = this.game.add.sprite(Game.w/2-64, Game.h/2+50, 'loading');
   	this.game.load.setPreloadSprite(preloading);
+
+    this.game.load.bitmapFont('akashi', 'assets/fonts/akashi/akashi.png', 'assets/fonts/akashi/akashi.fnt');
 
     // Music Track
     // this.game.load.audio('music','soundtrack.mp3');
