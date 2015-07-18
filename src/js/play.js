@@ -19,7 +19,20 @@ var sKey;
 var dKey;
 var currentColor;
 var score;
+var combo = 0;
+var level_names = [
+                    'easy does it',
+                    'hey, you\'re pretty good',
+                    's@#$, got real!',
+                    'the chosen one'
+                    ];
+                    
+var level = 0;
+var speed = 1000;
+var experience = 0;
+var nextLevel = 1000;
 var scoreText;
+var chosen = false;
 
 Game.Play = function(game) {
   this.game = game;
@@ -105,9 +118,10 @@ Game.Play.prototype = {
   updateColor: function(interval) {
    if (this.game.time.now > this.nextWordIn + interval) {
     this.nextWordIn = this.game.time.now + interval;
+    chosen = false;
      
     currentColor.setText(this.colorNames[game.rnd.integerInRange(0,3)]);
-    currentColor.tint = this.colors[game.rnd.integerInRange(0,3)]
+    currentColor.tint = this.colors[game.rnd.integerInRange(0,3)];
     currentColor.y = -128;
 
     var t = this.game.add.tween(currentColor)
@@ -119,15 +133,27 @@ Game.Play.prototype = {
   },
   actionOnClick: function(btn) {
     console.log(btn.name +' '+ currentColor.text);
-    if (btn.name === currentColor.text.toLowerCase()) {
-      score += 1;
+    var tint = btn.tint;
+    if (btn.name === currentColor.text.toLowerCase() && chosen === false) {
+      chosen = true; //so the player can't spam the color to ramp up the points
+
+      combo += 1; //the more the player get's right in a row the higher the points
+      score +=  10 * combo;
       scoreText.setText('Score: ' + score);
+    }else {
+      streak = false;
+      combo = 0;
     }
 
   },
   update: function() {
 
-    this.updateColor(1000);
+    if (score >= nextLevel) {
+      nextLevel *= 2;
+      speed -= 100;
+      level += 1;
+    }
+    this.updateColor(speed);
 
     // // Toggle Music
     // muteKey.onDown.add(this.toggleMute, this);
@@ -142,8 +168,10 @@ Game.Play.prototype = {
   //     this.music.volume = 0.5;
   //   }
   // },
-  // render: function() {
-  //   game.debug.text('Health: ' + tri.health, 32, 96);
-  // }
+  render: function() {
+    game.debug.text('Streak: ' + combo, 32, 96);
+    game.debug.text('Level: ' + level_names[level], 32, 32);
+    game.debug.text('Speed: ' + speed, 32, 64);
+  }
 
 };
