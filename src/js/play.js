@@ -88,6 +88,9 @@ Game.Play.prototype = {
     scoreText = this.game.add.bitmapText(Game.w - 100, 48,'akashi', 'Score: '+ score,32); 
     scoreText.anchor.setTo(0.5, 0.5);
 
+    this.comboText = this.game.add.bitmapText(Game.w - 100, 96,'akashi', 'Combo X' + combo,32); 
+    this.comboText.anchor.setTo(0.5, 0.5);
+
     buttonSize = 64;
 
     //Placeholder Player
@@ -152,6 +155,8 @@ Game.Play.prototype = {
     t.onComplete.add(function() {
       if (chosen === false) {
         lives -= 1;
+        combo = 0;
+        this.comboText.setText('Combo X'+combo);
       }
       chosen = false;
     },this);
@@ -181,11 +186,15 @@ Game.Play.prototype = {
       combo += 1; //the more the player get's right in a row the higher the points
       score +=  10 * combo;
       scoreText.setText('Score: ' + score);
+
+      this.comboText.setText('Combo X'+combo);
+
     }else {
       chosen = true;
       lives -= 1;
-      streak = false;
       combo = 0;
+
+      this.comboText.setText('Combo X'+combo);
     }
 
   },
