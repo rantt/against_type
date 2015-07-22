@@ -82,16 +82,10 @@ Game.Play.prototype = {
     this.colorNames = ['Red', 'Blue', 'Green', 'Yellow'];
     this.colors = [0xff0000, 0x0000ff, 0x00ff00, 0xffff00];
 
-    // currentColor = this.game.add.text(Game.w/2, Game.h/2, this.colorNames[game.rnd.integerInRange(0, 3)], {font: '128px Helvetica', fill: '#FFF', weight: 'bold'}); 
-
-    // currentColor = this.game.add.bitmapText(Game.w/2, Game.h/2, 'akashi', this.colorNames[game.rnd.integerInRange(0, 3)], 128);
-    // currentColor = this.game.add.bitmapText(Game.w/2, Game.h/2, 'akashi', '', 128);
     currentColor = this.game.add.bitmapText(Game.w/2, -128, 'akashi', '', 128);
     currentColor.anchor.setTo(0.5, 0.5);
 
-    // currentColor.tint = this.colors[game.rnd.integerInRange(0,3)]
-
-    scoreText = this.game.add.text(Game.w - 200, 48, 'Score: '+score, {font: '32px Helvetica', fill: '#FFF'});
+    scoreText = this.game.add.bitmapText(Game.w - 100, 48,'akashi', 'Score: '+ score,32); 
     scoreText.anchor.setTo(0.5, 0.5);
 
     buttonSize = 64;
@@ -103,28 +97,24 @@ Game.Play.prototype = {
     buttonbmd.ctx.fillStyle = '#fff';
     buttonbmd.ctx.fill();
 
-    // this.red = this.game.add.button(Game.w/2-222, Game.h-buttonSize-64, buttonbmd, this.actionOnClick);
     this.red = this.game.add.sprite(Game.w/2-222, Game.h-buttonSize-64, buttonbmd);
     this.red.inputEnabled = true;
     this.red.events.onInputDown.add(this.actionOnClick, this);
     this.red.tint = 0xff0000;  
     this.red.name = 'red';  
 
-    // this.blue = this.game.add.button(Game.w/2-96, Game.h-buttonSize-64, buttonbmd, this.actionOnClick);
     this.blue = this.game.add.sprite(Game.w/2-96, Game.h-buttonSize-64, buttonbmd);
     this.blue.inputEnabled = true;
     this.blue.events.onInputDown.add(this.actionOnClick, this);
     this.blue.tint = 0x0000ff;  
     this.blue.name = 'blue';  
 
-    // this.green = this.game.add.button(Game.w/2 + 32, Game.h-buttonSize-64, buttonbmd, this.actionOnClick);
     this.green = this.game.add.sprite(Game.w/2 + 32, Game.h-buttonSize-64, buttonbmd);
     this.green.inputEnabled = true;
     this.green.events.onInputDown.add(this.actionOnClick, this);
     this.green.tint = 0x00ff00;  
     this.green.name = 'green';  
 
-    // this.yellow = this.game.add.button(Game.w/2+160, Game.h-buttonSize-64, buttonbmd, this.actionOnClick);
     this.yellow = this.game.add.sprite(Game.w/2+160, Game.h-buttonSize-64, buttonbmd);
     this.yellow.inputEnabled = true;
     this.yellow.events.onInputDown.add(this.actionOnClick, this);
@@ -207,6 +197,9 @@ Game.Play.prototype = {
       level += 1;
       lives = 4; //restore lives on new level
     }
+
+    // scoreText.setText('Score: ' + score);
+    // console.log('score'+score);
     this.updateColor(speed);
 
     // // Toggle Music
