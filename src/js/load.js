@@ -50,8 +50,10 @@ Game.Load.prototype = {
 
     this.game.load.bitmapFont('akashi', 'assets/fonts/akashi/akashi.png', 'assets/fonts/akashi/akashi.fnt');
 
+    this.game.load.audio('boom', 'assets/audio/boom.wav');
+
     // Music Track
-    // this.game.load.audio('music','soundtrack.mp3');
+    this.game.load.audio('music','assets/audio/sky.mp3');
 
   },
   create: function() {

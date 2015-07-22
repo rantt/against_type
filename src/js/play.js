@@ -24,7 +24,7 @@ var level_names = [
                     'easy does it',
                     'hey, you\'re pretty good',
                     's@#$, got real!',
-                    'the chosen one'
+                    'THE CHOSEN ONE'
                     ];
                     
 var level = 0;
@@ -33,6 +33,8 @@ var experience = 0;
 var nextLevel = 1000;
 var scoreText;
 var chosen = false;
+var lives = 4;
+var boomSnd;
 
 Game.Play = function(game) {
   this.game = game;
@@ -46,9 +48,12 @@ Game.Play.prototype = {
     score = 0;
 
     // // Music
-    // this.music = this.game.add.sound('music');
-    // this.music.volume = 0.5;
-    // this.music.play('',0,1,true);
+    this.music = this.game.add.sound('music');
+    this.music.volume = 0.5;
+    this.music.play('',0,1,true);
+
+    this.boomSnd = this.game.add.sound('boom');
+    this.boomSnd.volume = 0.5;
 
     //Setup WASD and extra keys
     wKey = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
@@ -98,27 +103,52 @@ Game.Play.prototype = {
     buttonbmd.ctx.fillStyle = '#fff';
     buttonbmd.ctx.fill();
 
-    this.red = this.game.add.button(Game.w/2-222, Game.h-buttonSize-64, buttonbmd, this.actionOnClick);
+    // this.red = this.game.add.button(Game.w/2-222, Game.h-buttonSize-64, buttonbmd, this.actionOnClick);
+    this.red = this.game.add.sprite(Game.w/2-222, Game.h-buttonSize-64, buttonbmd);
+    this.red.inputEnabled = true;
+    this.red.events.onInputDown.add(this.actionOnClick, this);
     this.red.tint = 0xff0000;  
     this.red.name = 'red';  
 
-    this.blue = this.game.add.button(Game.w/2-96, Game.h-buttonSize-64, buttonbmd, this.actionOnClick);
+    // this.blue = this.game.add.button(Game.w/2-96, Game.h-buttonSize-64, buttonbmd, this.actionOnClick);
+    this.blue = this.game.add.sprite(Game.w/2-96, Game.h-buttonSize-64, buttonbmd);
+    this.blue.inputEnabled = true;
+    this.blue.events.onInputDown.add(this.actionOnClick, this);
     this.blue.tint = 0x0000ff;  
     this.blue.name = 'blue';  
 
-    this.green = this.game.add.button(Game.w/2 + 32, Game.h-buttonSize-64, buttonbmd, this.actionOnClick);
+    // this.green = this.game.add.button(Game.w/2 + 32, Game.h-buttonSize-64, buttonbmd, this.actionOnClick);
+    this.green = this.game.add.sprite(Game.w/2 + 32, Game.h-buttonSize-64, buttonbmd);
+    this.green.inputEnabled = true;
+    this.green.events.onInputDown.add(this.actionOnClick, this);
     this.green.tint = 0x00ff00;  
     this.green.name = 'green';  
 
-    this.yellow = this.game.add.button(Game.w/2+160, Game.h-buttonSize-64, buttonbmd, this.actionOnClick);
+    // this.yellow = this.game.add.button(Game.w/2+160, Game.h-buttonSize-64, buttonbmd, this.actionOnClick);
+    this.yellow = this.game.add.sprite(Game.w/2+160, Game.h-buttonSize-64, buttonbmd);
+    this.yellow.inputEnabled = true;
+    this.yellow.events.onInputDown.add(this.actionOnClick, this);
     this.yellow.tint = 0xffff00;  
     this.yellow.name = 'yellow';  
+
+    this.debris = this.game.add.bitmapData(20, 20);
+    this.debris.ctx.strokeStyle = '#000';
+    this.debris.ctx.rect(0, 0, 20, 20);
+    this.debris.ctx.fillStyle = '#fff';
+    this.debris.ctx.fill();
+
+    this.emitter = this.game.add.emitter(0, 0, 100);
+    this.emitter.makeParticles(this.debris);
+    this.emitter.gravity = 500;
+    this.emitter.minParticleSpeed.setTo(-200, -200);
+    this.emitter.maxParticleSpeed.setTo(200, 200);
+ 
 
   },
   updateColor: function(interval) {
    if (this.game.time.now > this.nextWordIn + interval) {
+    currentColor.alpha = 1;
     this.nextWordIn = this.game.time.now + interval;
-    chosen = false;
      
     currentColor.setText(this.colorNames[game.rnd.integerInRange(0,3)]);
     currentColor.tint = this.colors[game.rnd.integerInRange(0,3)];
@@ -128,19 +158,42 @@ Game.Play.prototype = {
       .to({y: Game.h/2}, interval, Phaser.Easing.Quadratic.InOut)
       .to({y: Game.h+128}, interval, Phaser.Easing.Quadratic.InOut)
       .start();
+
+    t.onComplete.add(function() {
+      if (chosen === false) {
+        lives -= 1;
+      }
+      chosen = false;
+    },this);
    }
 
   },
   actionOnClick: function(btn) {
-    console.log(btn.name +' '+ currentColor.text);
+    // console.log(btn.name +' '+ currentColor.text + ' '+ this.yellow.name, + ' ' + this.boomSnd.play());
     var tint = btn.tint;
     if (btn.name === currentColor.text.toLowerCase() && chosen === false) {
+      console.log(btn.name + ' ' + currentColor.text.toLowerCase() + ' '+chosen);
+      this.boomSnd.play();
+      currentColor.alpha = 0;
+      
+      this.emitter.forEach(function(particle) {
+          // tint every particle red
+          // particle.tint = currentColor.tint;
+          particle.tint = btn.tint;
+      });
+      this.emitter.x = currentColor.x;
+      this.emitter.y = currentColor.y;
+      this.emitter.start(true, 1000, null, 256);
+
+
       chosen = true; //so the player can't spam the color to ramp up the points
 
       combo += 1; //the more the player get's right in a row the higher the points
       score +=  10 * combo;
       scoreText.setText('Score: ' + score);
     }else {
+      chosen = true;
+      lives -= 1;
       streak = false;
       combo = 0;
     }
@@ -152,6 +205,7 @@ Game.Play.prototype = {
       nextLevel *= 2;
       speed -= 100;
       level += 1;
+      lives = 4; //restore lives on new level
     }
     this.updateColor(speed);
 
@@ -172,6 +226,8 @@ Game.Play.prototype = {
     game.debug.text('Streak: ' + combo, 32, 96);
     game.debug.text('Level: ' + level_names[level], 32, 32);
     game.debug.text('Speed: ' + speed, 32, 64);
+    game.debug.text('Lives: ' + lives, 32, 112);
+    game.debug.text('Chosen: ' + chosen, 32, 124);
   }
 
 };
