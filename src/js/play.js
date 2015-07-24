@@ -24,7 +24,8 @@ var level_names = [
                     'easy does it',
                     'hey, you\'re pretty good',
                     's@#$, got real!',
-                    'THE CHOSEN ONE'
+                    'TOO FAST!!',
+                    'THE CHOSEN ONE!'
                     ];
                     
 var level = 0;
@@ -54,6 +55,10 @@ Game.Play.prototype = {
 
     this.boomSnd = this.game.add.sound('boom');
     this.boomSnd.volume = 0.5;
+
+
+    this.missSnd = this.game.add.sound('miss');
+    this.missSnd.volume = 0.5;
 
     //Setup WASD and extra keys
     wKey = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
@@ -88,8 +93,10 @@ Game.Play.prototype = {
     scoreText = this.game.add.bitmapText(Game.w - 100, 48,'akashi', 'Score: '+ score,32); 
     scoreText.anchor.setTo(0.5, 0.5);
 
-    this.comboText = this.game.add.bitmapText(Game.w - 100, 96,'akashi', 'Combo X' + combo,32); 
+    this.comboText = this.game.add.bitmapText(Game.w - 100, 96,'akashi', 'X' + combo,64); 
     this.comboText.anchor.setTo(0.5, 0.5);
+    this.comboText.alpha = 0;
+    this.comboText.tint = 0xff0000;
 
     buttonSize = 64;
 
@@ -156,7 +163,10 @@ Game.Play.prototype = {
       if (chosen === false) {
         lives -= 1;
         combo = 0;
-        this.comboText.setText('Combo X'+combo);
+        // this.comboText.setText('Combo X'+combo);
+        this.game.add.tween(this.comboText)
+          .to({alpha: 0}, 300).start();
+        // this.comboText.alpha = 0;
       }
       chosen = false;
     },this);
@@ -164,7 +174,6 @@ Game.Play.prototype = {
 
   },
   actionOnClick: function(btn) {
-    // console.log(btn.name +' '+ currentColor.text + ' '+ this.yellow.name, + ' ' + this.boomSnd.play());
     var tint = btn.tint;
     if (btn.name === currentColor.text.toLowerCase() && chosen === false) {
       console.log(btn.name + ' ' + currentColor.text.toLowerCase() + ' '+chosen);
@@ -172,8 +181,7 @@ Game.Play.prototype = {
       currentColor.alpha = 0;
       
       this.emitter.forEach(function(particle) {
-          // tint every particle red
-          // particle.tint = currentColor.tint;
+          // tint every particle to match the selected color 
           particle.tint = btn.tint;
       });
       this.emitter.x = currentColor.x;
@@ -187,14 +195,19 @@ Game.Play.prototype = {
       score +=  10 * combo;
       scoreText.setText('Score: ' + score);
 
-      this.comboText.setText('Combo X'+combo);
+      this.comboText.setText('X'+combo);
+      this.game.add.tween(this.comboText)
+        .to({alpha: 1}, 500).start();
 
     }else {
+      this.missSnd.play();
       chosen = true;
       lives -= 1;
       combo = 0;
 
-      this.comboText.setText('Combo X'+combo);
+      this.comboText.setText('X'+combo);
+      this.game.add.tween(this.comboText)
+        .to({alpha: 0}, 500).start();
     }
 
   },
