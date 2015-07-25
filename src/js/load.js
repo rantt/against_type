@@ -52,7 +52,7 @@ Game.Load.prototype = {
 
 
     // this.game.load.spritesheet('hearts', 'assets/images/hearts.png', 31, 31, 6);
-    this.game.load.atlasXML('hearts','assets/images/hearts.png','assets/images/hearts.xml');
+    this.game.load.atlasXML('hearts','assets/images/hearts.png','assets/atlas/hearts.xml');
     this.game.load.audio('boom', 'assets/audio/boom.wav');
     this.game.load.audio('miss', 'assets/audio/miss.wav');
 
