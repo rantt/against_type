@@ -12,7 +12,6 @@
 
 // var musicOn = true;
 
-
 var wKey;
 var aKey;
 var sKey;
@@ -22,20 +21,17 @@ var score;
 var combo = 0;
 var level_names = [
                     'easy does it',
-                    'hey, you\'re pretty good',
-                    's@#$, got real!',
+                    'Pretty Good :)',
+                    '$#!^, got real!',
                     'TOO FAST!!',
                     'THE CHOSEN ONE!'
                     ];
-                    
 var level = 0;
 var speed = 1000;
 var experience = 0;
 var nextLevel = 1000;
-var scoreText;
 var chosen = false;
-var lives = 4;
-var boomSnd;
+var life = 4;
 
 Game.Play = function(game) {
   this.game = game;
@@ -90,13 +86,17 @@ Game.Play.prototype = {
     currentColor = this.game.add.bitmapText(Game.w/2, -128, 'akashi', '', 128);
     currentColor.anchor.setTo(0.5, 0.5);
 
-    scoreText = this.game.add.bitmapText(Game.w - 100, 48,'akashi', 'Score: '+ score,32); 
-    scoreText.anchor.setTo(0.5, 0.5);
+    this.scoreText = this.game.add.bitmapText(Game.w - 100, 48,'akashi', 'Score: '+ score,32); 
+    this.scoreText.anchor.setTo(0.5, 0.5);
 
     this.comboText = this.game.add.bitmapText(Game.w - 100, 96,'akashi', 'X' + combo,64); 
     this.comboText.anchor.setTo(0.5, 0.5);
     this.comboText.alpha = 0;
     this.comboText.tint = 0xff0000;
+
+    this.lvlText = this.game.add.bitmapText(32, 32, 'akashi', 'Lvl: '+ level_names[level], 32); 
+
+
 
     buttonSize = 64;
 
@@ -143,7 +143,24 @@ Game.Play.prototype = {
     this.emitter.minParticleSpeed.setTo(-200, -200);
     this.emitter.maxParticleSpeed.setTo(200, 200);
  
+    this.heartGauge = [
+                        this.game.add.sprite(32, 80,'hearts'),
+                        this.game.add.sprite(96, 80,'hearts'),
+                        this.game.add.sprite(160, 80,'hearts'),
+                        this.game.add.sprite(224, 80,'hearts')
+                      ]
+    this.drawLife();
 
+
+  },
+  drawLife: function() {
+    for(var i = 0; i < 4;i++) {
+     if (i < life) {
+       this.heartGauge[i].frame = i;
+     }else {
+       this.heartGauge[i].frame = 4;
+     }
+    }
   },
   updateColor: function(interval) {
    if (this.game.time.now > this.nextWordIn + interval) {
@@ -161,11 +178,14 @@ Game.Play.prototype = {
 
     t.onComplete.add(function() {
       if (chosen === false) {
-        lives -= 1;
+        life -= 1;
         combo = 0;
         // this.comboText.setText('Combo X'+combo);
         this.game.add.tween(this.comboText)
           .to({alpha: 0}, 300).start();
+
+        this.drawLife();
+        this.missSnd.play();
         // this.comboText.alpha = 0;
       }
       chosen = false;
@@ -193,7 +213,7 @@ Game.Play.prototype = {
 
       combo += 1; //the more the player get's right in a row the higher the points
       score +=  10 * combo;
-      scoreText.setText('Score: ' + score);
+      this.scoreText.setText('Score: ' + score);
 
       this.comboText.setText('X'+combo);
       this.game.add.tween(this.comboText)
@@ -202,26 +222,44 @@ Game.Play.prototype = {
     }else {
       this.missSnd.play();
       chosen = true;
-      lives -= 1;
+      life -= 1;
       combo = 0;
 
       this.comboText.setText('X'+combo);
       this.game.add.tween(this.comboText)
         .to({alpha: 0}, 500).start();
     }
+    this.drawLife();
 
   },
   update: function() {
 
     if (score >= nextLevel) {
-      nextLevel *= 2;
-      speed -= 100;
-      level += 1;
-      lives = 4; //restore lives on new level
+      if (level < 5) {
+        nextLevel *= 2;
+        speed -= 100;
+        level += 1;
+        life = 4; //restore life on new level
+        this.lvlText.setText('Lvl: '+level_names[level]);
+        switch (level) {
+          case 0:
+            this.lvlText.tint = 0xFFFFFF;
+            break;
+          case 1:
+            this.lvlText.tint = 0x00ff00;
+            break;
+          case 2:
+            this.lvlText.tint = 0x0000ff;
+            break;
+          case 3:
+            this.lvlText.tint = 0xffff00;
+            break;
+          case 4:
+            this.lvlText.tint = 0xff0000;
+            break;
+        }
+      }
     }
-
-    // scoreText.setText('Score: ' + score);
-    // console.log('score'+score);
     this.updateColor(speed);
 
     // // Toggle Music
@@ -237,12 +275,12 @@ Game.Play.prototype = {
   //     this.music.volume = 0.5;
   //   }
   // },
-  render: function() {
-    game.debug.text('Streak: ' + combo, 32, 96);
-    game.debug.text('Level: ' + level_names[level], 32, 32);
-    game.debug.text('Speed: ' + speed, 32, 64);
-    game.debug.text('Lives: ' + lives, 32, 112);
-    game.debug.text('Chosen: ' + chosen, 32, 124);
-  }
+  // render: function() {
+    // game.debug.text('Streak: ' + combo, 32, 96);
+    // game.debug.text('Level: ' + level_names[level], 32, 32);
+    // game.debug.text('Speed: ' + speed, 32, 64);
+    // game.debug.text('Lives: ' + life, 32, 112);
+    // game.debug.text('Chosen: ' + chosen, 32, 124);
+  // }
 
 };
