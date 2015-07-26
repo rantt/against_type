@@ -109,25 +109,29 @@ Game.Play.prototype = {
     buttonbmd.ctx.fillStyle = '#fff';
     buttonbmd.ctx.fill();
 
-    this.red = this.game.add.sprite(Game.w/2-222, Game.h-buttonSize-64, buttonbmd);
+    this.red = this.game.add.sprite(Game.w/5, Game.h-buttonSize-64, buttonbmd);
+    this.red.anchor.setTo(0.5, 0.5);
     this.red.inputEnabled = true;
     this.red.events.onInputDown.add(this.actionOnClick, this);
     this.red.tint = 0xff0000;  
     this.red.name = 'red';  
 
-    this.blue = this.game.add.sprite(Game.w/2-96, Game.h-buttonSize-64, buttonbmd);
+    this.blue = this.game.add.sprite(Game.w/5*2, Game.h-buttonSize-64, buttonbmd);
+    this.blue.anchor.setTo(0.5, 0.5);
     this.blue.inputEnabled = true;
     this.blue.events.onInputDown.add(this.actionOnClick, this);
     this.blue.tint = 0x0000ff;  
     this.blue.name = 'blue';  
 
-    this.green = this.game.add.sprite(Game.w/2 + 32, Game.h-buttonSize-64, buttonbmd);
+    this.green = this.game.add.sprite(Game.w/5*3, Game.h-buttonSize-64, buttonbmd);
+    this.green.anchor.setTo(0.5, 0.5);
     this.green.inputEnabled = true;
     this.green.events.onInputDown.add(this.actionOnClick, this);
     this.green.tint = 0x00ff00;  
     this.green.name = 'green';  
 
-    this.yellow = this.game.add.sprite(Game.w/2+160, Game.h-buttonSize-64, buttonbmd);
+    this.yellow = this.game.add.sprite(Game.w/5*4, Game.h-buttonSize-64, buttonbmd);
+    this.yellow.anchor.setTo(0.5, 0.5);
     this.yellow.inputEnabled = true;
     this.yellow.events.onInputDown.add(this.actionOnClick, this);
     this.yellow.tint = 0xffff00;  
@@ -182,13 +186,11 @@ Game.Play.prototype = {
       if (chosen === false) {
         life -= 1;
         combo = 0;
-        // this.comboText.setText('Combo X'+combo);
         this.game.add.tween(this.comboText)
           .to({alpha: 0}, 300).start();
 
         this.drawLife();
         this.missSnd.play();
-        // this.comboText.alpha = 0;
       }
       chosen = false;
     },this);
@@ -196,7 +198,10 @@ Game.Play.prototype = {
 
   },
   actionOnClick: function(btn) {
-    var tint = btn.tint;
+    var t = this.game.add.tween(btn)
+      .to({angle: 180}, 300)
+      .start();
+
     if (btn.name === currentColor.text.toLowerCase() && chosen === false) {
       console.log(btn.name + ' ' + currentColor.text.toLowerCase() + ' '+chosen);
       this.boomSnd.play();
@@ -231,6 +236,8 @@ Game.Play.prototype = {
       this.game.add.tween(this.comboText)
         .to({alpha: 0}, 500).start();
     }
+
+
     this.drawLife();
 
   },
