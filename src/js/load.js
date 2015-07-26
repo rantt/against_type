@@ -57,7 +57,7 @@ Game.Load.prototype = {
     this.game.load.audio('miss', 'assets/audio/miss.wav');
 
     // Music Track
-    this.game.load.audio('music','assets/audio/sky.ogg');
+    this.game.load.audio('music',['assets/audio/sky.ogg','assets/audio/sky.mp3']);
 
   },
   create: function() {
