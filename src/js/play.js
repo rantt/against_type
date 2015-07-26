@@ -32,6 +32,7 @@ var experience = 0;
 var nextLevel = 1000;
 var chosen = false;
 var life = 4;
+var showInstructions = true;
 
 Game.Play = function(game) {
   this.game = game;
@@ -66,18 +67,18 @@ Game.Play.prototype = {
     //Placeholder Background
     var borderbmd = this.game.add.bitmapData(80, 80);
     borderbmd.ctx.rect(0, 0, 80, 80);
-    borderbmd.ctx.fillStyle = '#fff'; //set a white backborder for the tile
+    borderbmd.ctx.fillStyle = '#dcdcdc'; //set a white backborder for the tile
     borderbmd.ctx.fill();
     borderbmd.ctx.beginPath();
     borderbmd.ctx.rect(0, 0, 20, 20);  
     borderbmd.ctx.rect(20, 40, 20, 20);
-    // borderbmd.ctx.fillStyle = '#00bfff'; //blue
-    borderbmd.ctx.fillStyle = '#000'; //blue
+    borderbmd.ctx.fillStyle = '#fff'; //blue
     borderbmd.ctx.fill();
 
     background = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, borderbmd);
     // background.tileScale.set(4);
-    background.tint = 0x444444;
+
+    background.tint = 0x555555;
 
 
     this.colorNames = ['Red', 'Blue', 'Green', 'Yellow'];
@@ -96,7 +97,8 @@ Game.Play.prototype = {
 
     this.lvlText = this.game.add.bitmapText(32, 32, 'akashi', 'Lvl: '+ level_names[level], 32); 
 
-
+    this.instructionText = this.game.add.bitmapText(Game.w/2, Game.h/2, 'akashi', "Click the button that's the same color as the\n word that appears on the screen...easy...right?\n\nClick To Continue", 24);
+    this.instructionText.anchor.setTo(0.5, 0.5);
 
     buttonSize = 64;
 
@@ -234,34 +236,40 @@ Game.Play.prototype = {
   },
   update: function() {
 
-    if (score >= nextLevel) {
-      if (level < 5) {
-        nextLevel *= 2;
-        speed -= 100;
-        level += 1;
-        life = 4; //restore life on new level
-        this.lvlText.setText('Lvl: '+level_names[level]);
-        switch (level) {
-          case 0:
-            this.lvlText.tint = 0xFFFFFF;
-            break;
-          case 1:
-            this.lvlText.tint = 0x00ff00;
-            break;
-          case 2:
-            this.lvlText.tint = 0x0000ff;
-            break;
-          case 3:
-            this.lvlText.tint = 0xffff00;
-            break;
-          case 4:
-            this.lvlText.tint = 0xff0000;
-            break;
+    if (showInstructions === true) {
+      if (this.game.input.activePointer.isDown) {
+        showInstructions = false;
+        this.instructionText.setText('');
+      }
+    }else {
+      if (score >= nextLevel) {
+        if (level < 5) {
+          nextLevel *= 2;
+          speed -= 100;
+          level += 1;
+          life = 4; //restore life on new level
+          this.lvlText.setText('Lvl: '+level_names[level]);
+          switch (level) {
+            case 0:
+              this.lvlText.tint = 0xFFFFFF;
+              break;
+            case 1:
+              this.lvlText.tint = 0x00ff00;
+              break;
+            case 2:
+              this.lvlText.tint = 0x0000ff;
+              break;
+            case 3:
+              this.lvlText.tint = 0xffff00;
+              break;
+            case 4:
+              this.lvlText.tint = 0xff0000;
+              break;
+          }
         }
       }
+      this.updateColor(speed);
     }
-    this.updateColor(speed);
-
     // // Toggle Music
     // muteKey.onDown.add(this.toggleMute, this);
 
