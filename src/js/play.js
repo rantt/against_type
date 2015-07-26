@@ -289,6 +289,7 @@ Game.Play.prototype = {
         life = 4;
         gameOver = false;
 
+        this.twitterButton.visible = false;
         this.scoreText.setText('Score: ' + score);
         this.drawLife();
 
