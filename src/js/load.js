@@ -3,8 +3,15 @@ var Game = {
   h: 980 
 };
 
-// var w = 800;
-// var h = 600;
+
+if (localStorage.getItem('atHighestScore') === null) {
+  localStorage.setItem('atHighestScore', 0);
+}
+
+if (localStorage.getItem('atHighestCombo') === null) {
+  localStorage.setItem('atHighestCombo', 0);
+}
+
 
 Game.Boot = function(game) {
   this.game = game;
@@ -50,6 +57,7 @@ Game.Load.prototype = {
 
     this.game.load.bitmapFont('akashi', 'assets/fonts/akashi/akashi.png', 'assets/fonts/akashi/akashi.fnt');
 
+    this.game.load.image('twitter','assets/images/twitter.png');
 
     // this.game.load.spritesheet('hearts', 'assets/images/hearts.png', 31, 31, 6);
     this.game.load.atlasXML('hearts','assets/images/hearts.png','assets/atlas/hearts.xml');

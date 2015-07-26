@@ -27,12 +27,14 @@ var level_names = [
                     'THE CHOSEN ONE!'
                     ];
 var level = 0;
-var speed = 1000;
+var speed = 2000;
 var experience = 0;
 var nextLevel = 1000;
 var chosen = false;
 var life = 4;
 var showInstructions = true;
+var gameOver = false;
+var resetWait;
 
 Game.Play = function(game) {
   this.game = game;
@@ -41,6 +43,9 @@ Game.Play = function(game) {
 Game.Play.prototype = {
   create: function() {
     this.game.world.setBounds(0, 0 ,Game.w ,Game.h);
+
+    this.highestScore = parseInt(JSON.parse(localStorage.getItem('atHighestScore')));
+    this.highestCombo = parseInt(JSON.parse(localStorage.getItem('atHighestCombo')));
 
     this.nextWordIn = this.game.time.now;
     score = 0;
@@ -100,6 +105,9 @@ Game.Play.prototype = {
     this.instructionText = this.game.add.bitmapText(Game.w/2, Game.h/2, 'akashi', "Click the button that's the same color as the\n word that appears on the screen...easy...right?\n\nClick To Continue", 24);
     this.instructionText.anchor.setTo(0.5, 0.5);
 
+    this.gameOverText = this.game.add.bitmapText(Game.w/2, Game.h/2, 'akashi', "", 32);
+    this.gameOverText.anchor.setTo(0.5, 0.5);
+
     buttonSize = 64;
 
     //Placeholder Player
@@ -157,6 +165,10 @@ Game.Play.prototype = {
                       ]
     this.drawLife();
 
+    this.twitterButton = this.game.add.button(this.game.world.centerX, this.game.world.centerY + 200,'twitter', this.twitter, this);
+    this.twitterButton.anchor.set(0.5);
+    // this.twitterButton.fixedToCamera = true;
+    this.twitterButton.visible = false;
 
   },
   drawLife: function() {
@@ -167,19 +179,27 @@ Game.Play.prototype = {
        this.heartGauge[i].frame = 4;
      }
     }
+    if (life === 0) {
+      gameOver = true;
+      resetWait = this.game.time.now + 1000;
+    }
   },
   updateColor: function(interval) {
-   if (this.game.time.now > this.nextWordIn + interval) {
+   if (gameOver === true) {
+     return;
+   }
+
+   if ((this.game.time.now > this.nextWordIn) && gameOver === false) {
     currentColor.alpha = 1;
-    this.nextWordIn = this.game.time.now + interval;
+    this.nextWordIn = this.game.time.now + interval + 100;
      
     currentColor.setText(this.colorNames[game.rnd.integerInRange(0,3)]);
     currentColor.tint = this.colors[game.rnd.integerInRange(0,3)];
     currentColor.y = -128;
 
     var t = this.game.add.tween(currentColor)
-      .to({y: Game.h/2}, interval, Phaser.Easing.Quadratic.InOut)
-      .to({y: Game.h+128}, interval, Phaser.Easing.Quadratic.InOut)
+      .to({y: Game.h/2}, interval/2, Phaser.Easing.Quadratic.InOut)
+      .to({y: Game.h+128}, interval/2, Phaser.Easing.Quadratic.InOut)
       .start();
 
     t.onComplete.add(function() {
@@ -198,6 +218,9 @@ Game.Play.prototype = {
 
   },
   actionOnClick: function(btn) {
+    if (gameOver === true || showInstructions === true) {
+      return;
+    }
     var t = this.game.add.tween(btn)
       .to({angle: 180}, 300)
       .start();
@@ -215,11 +238,20 @@ Game.Play.prototype = {
       this.emitter.y = currentColor.y;
       this.emitter.start(true, 1000, null, 256);
 
-
       chosen = true; //so the player can't spam the color to ramp up the points
 
       combo += 1; //the more the player get's right in a row the higher the points
       score +=  10 * combo;
+
+      if (score > this.highestScore) {
+        this.highestScore = score;
+        localStorage.setItem('atHighestScore', score);
+      }
+      if (combo > this.highestCombo) {
+        this.highestCombo = combo;
+        localStorage.setItem('atHighestCombo', combo);
+      }
+
       this.scoreText.setText('Score: ' + score);
 
       this.comboText.setText('X'+combo);
@@ -248,6 +280,29 @@ Game.Play.prototype = {
         showInstructions = false;
         this.instructionText.setText('');
       }
+    }else if (gameOver === true) {
+
+      if ((this.game.time.now > resetWait) && this.game.input.activePointer.isDown) {
+        this.gameOverText.setText('');
+        score = 0;
+        combo = 0;
+        life = 4;
+        gameOver = false;
+
+        this.scoreText.setText('Score: ' + score);
+        this.drawLife();
+
+      }else{
+        var message = "Game Over:\nYou Scored:  "+score;
+        if (this.highestScore > 0) {
+          message += "\n\nBest Score:  "+this.highestScore+"\nBest Combo: "+this.highestCombo; 
+        }
+        message += "\n\nClick To Play Again!";
+        this.gameOverText.setText(message); 
+        this.twitterButton.visible = true;
+
+      }
+    
     }else {
       if (score >= nextLevel) {
         if (level < 5) {
@@ -281,6 +336,10 @@ Game.Play.prototype = {
     // muteKey.onDown.add(this.toggleMute, this);
 
   },
+  twitter: function() {
+    window.open('http://twitter.com/share?text=My+best+score+is+'+this.highestScore+'+playing+Against+Type.+See+if+you+can+beat+it.+at&via=rantt_&url=http://www.divideby5.com/games/against_type/&hashtags=AgainstType,1GAM', '_blank');
+  },
+
   // toggleMute: function() {
   //   if (musicOn == true) {
   //     musicOn = false;
@@ -294,8 +353,10 @@ Game.Play.prototype = {
     // game.debug.text('Streak: ' + combo, 32, 96);
     // game.debug.text('Level: ' + level_names[level], 32, 32);
     // game.debug.text('Speed: ' + speed, 32, 64);
-    // game.debug.text('Lives: ' + life, 32, 112);
-    // game.debug.text('Chosen: ' + chosen, 32, 124);
+    // game.debug.text('highest score' + this.highestScore, 32, 112);
+    // game.debug.text('highest combo' + this.highestCombo, 32, 124);
+    // game.debug.text('now' + this.game.time.now, 32, 112);
+    // game.debug.text('resetWait' + resetWait, 32, 124);
   // }
 
 };
