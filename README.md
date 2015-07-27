@@ -8,5 +8,6 @@ Basic idea was to challenge myself to create a game in 20 min.  This was the res
 ![gameplay](screenshots/against.gif)
 
 music - [Sky](http://opengameart.org/content/sky) by extenz
+
 font - [Akashi](http://www.fontsquirrel.com/fonts/Akashi?q%5Bterm%5D=akashi&q%5Bsearch_check%5D=Y) by 'Ten By Twenty' 
 
