@@ -12,10 +12,6 @@
 
 // var musicOn = true;
 
-var wKey;
-var aKey;
-var sKey;
-var dKey;
 var currentColor;
 var score;
 var combo = 0;
@@ -24,11 +20,11 @@ var level_names = [
                     'Pretty Good :)',
                     '$#!^, got real!',
                     'TOO FAST!!',
-                    'THE CHOSEN ONE!'
+                    'THE CHOSEN ONE!',
+                    'extenz'
                     ];
 var level = 0;
 var speed = 2000;
-var experience = 0;
 var nextLevel = 1000;
 var chosen = false;
 var life = 4;
@@ -62,13 +58,6 @@ Game.Play.prototype = {
     this.missSnd = this.game.add.sound('miss');
     this.missSnd.volume = 0.5;
 
-    //Setup WASD and extra keys
-    wKey = this.game.input.keyboard.addKey(Phaser.Keyboard.W);
-    aKey = this.game.input.keyboard.addKey(Phaser.Keyboard.A);
-    sKey = this.game.input.keyboard.addKey(Phaser.Keyboard.S);
-    dKey = this.game.input.keyboard.addKey(Phaser.Keyboard.D);
-    // muteKey = game.input.keyboard.addKey(Phaser.Keyboard.M);
-
     //Placeholder Background
     var borderbmd = this.game.add.bitmapData(80, 80);
     borderbmd.ctx.rect(0, 0, 80, 80);
@@ -81,8 +70,6 @@ Game.Play.prototype = {
     borderbmd.ctx.fill();
 
     background = this.game.add.tileSprite(0, 0, this.game.width, this.game.height, borderbmd);
-    // background.tileScale.set(4);
-
     background.tint = 0x555555;
 
 
@@ -162,12 +149,11 @@ Game.Play.prototype = {
                         this.game.add.sprite(96, 80,'hearts'),
                         this.game.add.sprite(160, 80,'hearts'),
                         this.game.add.sprite(224, 80,'hearts')
-                      ]
+                      ];
     this.drawLife();
 
     this.twitterButton = this.game.add.button(this.game.world.centerX, this.game.world.centerY + 200,'twitter', this.twitter, this);
     this.twitterButton.anchor.set(0.5);
-    // this.twitterButton.fixedToCamera = true;
     this.twitterButton.visible = false;
 
   },
@@ -329,30 +315,28 @@ Game.Play.prototype = {
               this.lvlText.tint = 0xff0000;
               break;
           }
+        }else {
+          nextLevel *= 2;
+          if (speed > 500) {
+            speed -= 100; //500 is the top speed
+          }
+          level += 1;
+          console.log('here');
+          this.lvlText.setText('Lvl: extenz X ' + (level - 5).toString());
         }
       }
       this.updateColor(speed);
     }
-    // // Toggle Music
-    // muteKey.onDown.add(this.toggleMute, this);
 
   },
   twitter: function() {
     window.open('http://twitter.com/share?text=My+best+score+is+'+this.highestScore+'+playing+Against+Type.+See+if+you+can+beat+it.+at&via=rantt_&url=http://www.divideby5.com/games/against_type/&hashtags=AgainstType,1GAM', '_blank');
   },
 
-  // toggleMute: function() {
-  //   if (musicOn == true) {
-  //     musicOn = false;
-  //     this.music.volume = 0;
-  //   }else {
-  //     musicOn = true;
-  //     this.music.volume = 0.5;
-  //   }
-  // },
   // render: function() {
     // game.debug.text('Streak: ' + combo, 32, 96);
     // game.debug.text('Level: ' + level_names[level], 32, 32);
+    // game.debug.text('Level: ' + level, 32, 32);
     // game.debug.text('Speed: ' + speed, 32, 64);
     // game.debug.text('highest score' + this.highestScore, 32, 112);
     // game.debug.text('highest combo' + this.highestCombo, 32, 124);
