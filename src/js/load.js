@@ -50,9 +50,12 @@ Game.Load.prototype = {
     // this.game.add.plugin(Phaser.Plugin.Debug);
 
     //Loading Screen Message/bar
-    var loadingText = this.game.add.text(Game.w, Game.h, 'Loading...', { font: '30px Helvetica', fill: '#000' });
+    var loadingText = this.game.add.text(Game.w, Game.h, 'Loading...', { font: '30px Helvetica', fill: '#fff' });
   	loadingText.anchor.setTo(0.5, 0.5);
-  	var preloading = this.game.add.sprite(Game.w/2-64, Game.h/2+50, 'loading');
+  	// var preloading = this.game.add.sprite(Game.w/2-64, Game.h/2+50, 'loading');
+  	var preloading = this.game.add.sprite(Game.w/2, Game.h/2, 'loading');
+    preloading.anchor.setTo(0.5, 0.5);
+    preloading.tint = 0xff0000;
   	this.game.load.setPreloadSprite(preloading);
 
     this.game.load.bitmapFont('akashi', 'assets/fonts/akashi/akashi.png', 'assets/fonts/akashi/akashi.fnt');
